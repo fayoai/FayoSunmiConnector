@@ -1,0 +1,59 @@
+name: Build Fayo SUNMI APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'FayoSunmiConnector-v2.0.9-source.zip.b64'
+      - '.github/workflows/build-apk.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android 35 platform
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+
+      - name: Restore Android project
+        run: |
+          base64 -d FayoSunmiConnector-v2.0.9-source.zip.b64 > source.zip
+          unzip -q source.zip
+          test -f FayoSunmiConnector/settings.gradle
+          test -f FayoSunmiConnector/app/build.gradle
+
+      - name: Build APK
+        working-directory: FayoSunmiConnector
+        run: gradle :app:assembleDebug --stacktrace
+
+      - name: Prepare installable APK
+        run: |
+          cp FayoSunmiConnector/app/build/outputs/apk/debug/app-debug.apk FayoSunmiConnector.apk
+          ls -lh FayoSunmiConnector.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: FayoSunmiConnector-v2.0.9-apk
+          path: FayoSunmiConnector.apk
+          if-no-files-found: error
