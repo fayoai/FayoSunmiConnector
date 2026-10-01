@@ -7,7 +7,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'FayoSunmiConnector-v2.0.9-source.zip.b64'
+      - 'FayoSunmiConnector-v2.0.10-source.zip.b64'
       - '.github/workflows/build-apk.yml'
 
 permissions:
@@ -41,7 +41,7 @@ jobs:
 
       - name: Restore Android project
         run: |
-          base64 -d FayoSunmiConnector-v2.0.9-source.zip.b64 > source.zip
+          base64 -d FayoSunmiConnector-v2.0.10-source.zip.b64 > source.zip
           unzip -q source.zip
           test -f FayoSunmiConnector/settings.gradle
           test -f FayoSunmiConnector/app/build.gradle
@@ -58,6 +58,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: FayoSunmiConnector-v2.0.9-apk
+          name: FayoSunmiConnector-v2.0.10-apk
           path: FayoSunmiConnector.apk
           if-no-files-found: error
